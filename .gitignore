@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.env.local
+seen-emails.json
+.DS_Store
+

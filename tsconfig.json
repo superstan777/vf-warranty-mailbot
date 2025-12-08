@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "strict": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "skipLibCheck": true
+  },
+  "include": [
+    "*.ts",
+    "services/auth/auth.ts",
+    "services/subsrciption/subscriptionManager.ts",
+    "services/webhook/webhookApp.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}
