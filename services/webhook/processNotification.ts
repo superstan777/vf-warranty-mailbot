@@ -1,17 +1,11 @@
-import { fetchEmailDetails, markEmailAsRead } from "../email/graphMailService";
+import { fetchEmailDetails, markEmailAsRead } from "../mail/graphMailService";
 import type { Notification } from "../../types";
 
 export async function processNotification(notification: Notification) {
   try {
-    const mailbox = process.env.SHARED_MAILBOX!;
     const emailId = notification.resourceData.id;
 
-    const mail = await fetchEmailDetails(emailId, mailbox);
-
-    if (mail.isRead) {
-      console.log(`🔁 Email ${emailId} already read → skipping`);
-      return;
-    }
+    const mail = await fetchEmailDetails(emailId);
 
     console.log("\n=== 📧 NEW EMAIL (Webhook) ===");
     console.log("ID:", mail.id);
@@ -27,6 +21,6 @@ export async function processNotification(notification: Notification) {
 
     // await markEmailAsRead(emailId, mailbox);
   } catch (err) {
-    console.error("❌ Error processing notification:", err);
+    console.error(" Error processing notification:", err);
   }
 }

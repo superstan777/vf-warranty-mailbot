@@ -13,19 +13,19 @@ export function createWebhookApp() {
   app.post("/webhook", async (req, res) => {
     try {
       if (req.query.validationToken) {
-        console.log("🔵 Validation request (query)");
+        console.log("Validation request (query)");
         return res.status(200).send(req.query.validationToken);
       }
 
       const payload: NotificationPayload = req.body;
 
       if (payload.validationTokens?.length) {
-        console.log("🔵 Validation request (body)");
+        console.log("Validation request (body)");
         return res.status(200).send(payload.validationTokens[0]);
       }
 
       if (payload.value?.length) {
-        console.log(`📨 Received ${payload.value.length} notification(s)`);
+        console.log(`Received ${payload.value.length} notification(s)`);
 
         for (const notification of payload.value) {
           await processNotification(notification);
@@ -36,7 +36,7 @@ export function createWebhookApp() {
 
       res.status(200).send("No notifications");
     } catch (err) {
-      console.error("❌ Webhook error:", err);
+      console.error("Webhook error:", err);
       res.status(500).send("Internal Server Error");
     }
   });
