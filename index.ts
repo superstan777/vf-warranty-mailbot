@@ -6,6 +6,7 @@ import {
 import { getMailboxResource } from "./services/subsrciption/subscriptionApi";
 import { startPollingUnreadEmails } from "./services/mail/unreadPolling";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
@@ -17,11 +18,12 @@ async function main() {
       console.log(`Webhook listening on port ${PORT}`);
     });
 
-    if (!process.env.SHARED_MAILBOX) {
+    if (!process.env.SHARED_MAILBOX_ID) {
       throw new Error("SHARED_MAILBOX environment variable is required");
     }
 
-    const resource = getMailboxResource(process.env.SHARED_MAILBOX);
+    const resource = getMailboxResource(process.env.SHARED_MAILBOX_ID);
+
     const notificationUrl = `${process.env.WEBHOOK_URL}/webhook`;
 
     const subscription = await ensureSubscription(resource, notificationUrl);

@@ -15,21 +15,21 @@ export function startPollingUnreadEmails() {
 
       console.log(`Found ${unreadMails.length} unread email(s)`);
 
-      for (const mail of unreadMails) {
-        console.log("=== Unread Mail ===");
-        console.log("ID:", mail.id);
-        console.log("From:", mail.from?.emailAddress?.address || "Unknown");
-        console.log("Subject:", mail.subject || "(No Subject)");
-        console.log("Received:", mail.receivedDateTime);
-        console.log("=================\n");
+      // for (const mail of unreadMails) {
+      //   console.log("=== Unread Mail ===");
+      //   console.log("ID:", mail.id);
+      //   console.log("From:", mail.from?.emailAddress?.address || "Unknown");
+      //   console.log("Subject:", mail.subject || "(No Subject)");
+      //   console.log("Received:", mail.receivedDateTime);
+      //   console.log("=================\n");
 
-        try {
-          // await markEmailAsRead(mail.id);
-          console.log(`Marked email ${mail.id} as read.`);
-        } catch (error) {
-          console.error(`Failed to mark email ${mail.id} as read:`, error);
-        }
-      }
+      //   try {
+      //     // await markEmailAsRead(mail.id);
+      //     console.log(`Marked email ${mail.id} as read.`);
+      //   } catch (error) {
+      //     console.error(`Failed to mark email ${mail.id} as read:`, error);
+      //   }
+      // }
     } catch (error) {
       console.error("Error polling unread emails:", error);
     }

@@ -2,13 +2,11 @@ import cron from "node-cron";
 import { ensureSubscription } from "./subscriptionManager";
 import { getMailboxResource } from "./subscriptionApi";
 
-const SHARED_MAILBOX = process.env.SHARED_MAILBOX!;
-
-if (!SHARED_MAILBOX) {
-  throw new Error("SHARED_MAILBOX environment variable is required");
+if (!process.env.SHARED_MAILBOX_ID) {
+  throw new Error("SHARED_MAILBOX_ID environment variable is required");
 }
 
-const resource = getMailboxResource(SHARED_MAILBOX);
+const resource = getMailboxResource(process.env.SHARED_MAILBOX_ID);
 const notificationUrl = `${process.env.WEBHOOK_URL}/webhook`;
 
 cron.schedule("0 3 * * *", async () => {

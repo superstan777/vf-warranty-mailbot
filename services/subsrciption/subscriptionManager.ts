@@ -12,6 +12,7 @@ export async function ensureSubscription(
   notificationUrl: string
 ): Promise<Subscription> {
   const subscriptions = await listSubscriptions();
+
   const existing = subscriptions.find(
     (s) => s.resource === resource && s.notificationUrl === notificationUrl
   );
@@ -19,6 +20,7 @@ export async function ensureSubscription(
   if (existing) {
     const expiration = new Date(existing.expirationDateTime).getTime();
     const now = Date.now();
+    listSubscriptions;
     const minutesLeft = (expiration - now) / (1000 * 60);
 
     if (minutesLeft < SUBSCRIPTION_RENEWAL_BUFFER_MINUTES) {

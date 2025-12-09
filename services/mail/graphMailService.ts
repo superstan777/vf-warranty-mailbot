@@ -1,13 +1,10 @@
 import axios from "axios";
 import { getAppToken } from "../auth/auth";
 
-const MAILBOX = process.env.SHARED_MAILBOX!;
-
 export async function fetchEmails() {
   const token = await getAppToken();
-  const MAILBOX = process.env.SHARED_MAILBOX!;
 
-  const url = `https://graph.microsoft.com/v1.0/users/${MAILBOX}/mailFolders/Inbox/messages?$top=999&$filter=isRead eq false&$orderby=receivedDateTime desc&$select=id,subject,from,bodyPreview,receivedDateTime,isRead`;
+  const url = `https://graph.microsoft.com/v1.0/users/${process.env.SHARED_MAILBOX_ID}/mailFolders/Inbox/messages?$top=999&$filter=isRead eq false&$orderby=receivedDateTime desc`;
 
   try {
     const response = await axios.get(url, {
@@ -23,7 +20,7 @@ export async function fetchEmails() {
 export async function fetchEmailDetails(emailId: string) {
   const token = await getAppToken();
 
-  const url = `https://graph.microsoft.com/v1.0/users/${MAILBOX}/messages/${emailId}?$select=id,subject,from,bodyPreview,receivedDateTime,isRead`;
+  const url = `https://graph.microsoft.com/v1.0/users/${process.env.SHARED_MAILBOX_ID}/messages/${emailId}`;
 
   try {
     const response = await axios.get(url, {
@@ -40,7 +37,7 @@ export async function fetchEmailDetails(emailId: string) {
 export async function markEmailAsRead(emailId: string) {
   const token = await getAppToken();
 
-  const url = `https://graph.microsoft.com/v1.0/users/${MAILBOX}/messages/${emailId}`;
+  const url = `https://graph.microsoft.com/v1.0/users/${process.env.SHARED_MAILBOX_ID}/messages/${emailId}`;
 
   try {
     await axios.patch(
@@ -58,5 +55,40 @@ export async function markEmailAsRead(emailId: string) {
   } catch (err: any) {
     console.error("Failed to mark email as read:", err.response?.data || err);
     throw err;
+  }
+}
+
+export async function sendEmail(to: string, message: string) {
+  try {
+    const token = await getAppToken();
+
+    const url = `https://graph.microsoft.com/v1.0/users/${process.env.SHARED_MAILBOX_ID}/sendMail`;
+
+    const email = {
+      message: {
+        subject: "VF Warranty Assistant",
+        body: {
+          contentType: "Text",
+          content: message,
+        },
+        toRecipients: [
+          {
+            emailAddress: { address: to },
+          },
+        ],
+      },
+      saveToSentItems: "true",
+    };
+
+    await axios.post(url, email, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(`Mail sent to: ${to}`);
+  } catch (err: any) {
+    console.error("Failed to send reply:", err.response?.data || err.message);
   }
 }
