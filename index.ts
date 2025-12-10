@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { createWebhookApp } from "./services/webhook/webhookApp";
 import {
   ensureSubscription,
@@ -5,9 +8,6 @@ import {
 } from "./services/subsrciption/subscriptionManager";
 import { getMailboxResource } from "./services/subsrciption/subscriptionApi";
 import { startPollingUnreadEmails } from "./services/mail/unreadPolling";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 

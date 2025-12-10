@@ -1,6 +1,7 @@
 import express from "express";
 import { processNotification } from "./processNotification";
 import type { NotificationPayload } from "../../types";
+import { isDuplicate } from "../cache/dedupe";
 
 export function createWebhookApp() {
   const app = express();
@@ -28,6 +29,16 @@ export function createWebhookApp() {
         console.log(`Received ${payload.value.length} notification(s)`);
 
         for (const notification of payload.value) {
+          const mailId = notification.resourceData.id;
+
+          console.log(notification);
+
+          const duplicate = await isDuplicate(mailId);
+          if (duplicate) {
+            console.log(`Duplicate mail ${mailId}, skipping.`);
+            continue;
+          }
+
           await processNotification(notification);
         }
 

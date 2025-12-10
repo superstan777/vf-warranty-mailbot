@@ -7,4 +7,11 @@ const redis = new Redis({
   tls: {},
 });
 
+redis.on("error", (err) => {
+  console.error("Redis error:", err);
+});
+redis.on("connect", () => {
+  console.log("Redis connected");
+});
+
 export default redis;
