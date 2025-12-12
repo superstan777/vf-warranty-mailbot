@@ -1,26 +1,35 @@
 import axios from "axios";
 
+export interface AttachmentFullPayload {
+  graph_id: string;
+  file_name: string;
+  content_base_64: string;
+  content_type?: string;
+}
+
 export interface AddNotePayload {
   user_name: string;
   content: string;
   inc_number: string;
   origin: "mail";
+  graph_id: string;
+  attachments?: AttachmentFullPayload[];
 }
 
 export interface AddNoteResponse {
   success: boolean;
+  message: string;
   data?: any;
   errorCode?: string;
-  message: string;
   error?: any;
 }
 
-export async function addNote(
+export async function addNoteWithAttachments(
   payload: AddNotePayload
 ): Promise<AddNoteResponse> {
   try {
     const response = await axios.post<AddNoteResponse>(
-      `${process.env.BACKEND_URL}/api/add-note-new`,
+      `${process.env.BACKEND_URL}/api/notes/process-mail`,
       payload,
       {
         headers: {
@@ -38,20 +47,7 @@ export async function addNote(
       success: false,
       message: backendError?.message ?? "Network or internal server error.",
       errorCode: backendError?.errorCode ?? "NETWORK_OR_INTERNAL_ERROR",
-      error: backendError || err.message,
+      error: err.response?.data?.error ?? err.message,
     };
   }
 }
-
-// export async function addOutlookAttachment(mailId: string, attachment: any) {
-//   try {
-//     const res = await axios.post(`${API_BASE_URL}/api/add-outlook-attachment`, {
-//       mailId,
-//       attachment,
-//     });
-//     return res.data;
-//   } catch (err: any) {
-//     console.error("Failed to add attachment:", err.response?.data || err);
-//     throw err;
-//   }
-// }

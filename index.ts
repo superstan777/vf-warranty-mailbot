@@ -31,7 +31,7 @@ async function main() {
 
     console.log("Mailbot ready and monitoring mailbox.");
 
-    startPollingUnreadEmails();
+    // startPollingUnreadEmails();
   } catch (err) {
     console.error("Failed to start mailbot:", err);
     process.exit(1);

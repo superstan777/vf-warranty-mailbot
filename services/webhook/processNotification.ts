@@ -1,30 +1,37 @@
 import {
   fetchEmailDetails,
+  fetchAttachments,
   markEmailAsRead,
   sendEmail,
 } from "../mail/graphMailService";
-import { addNote, AddNotePayload } from "../notes/notesApi";
+
+import { addNoteWithAttachments } from "../notes/notesApi";
+import type { AddNotePayload } from "../notes/notesApi";
 import type { Notification } from "../../types";
+
+interface GraphAttachment {
+  id: string;
+  "@odata.type": string;
+  name: string;
+  contentBytes: string;
+  contentType: string;
+}
 
 export async function processNotification(notification: Notification) {
   try {
     const emailId = notification.resourceData.id;
 
     const mail = await fetchEmailDetails(emailId);
-    const fromAddress = mail.from?.emailAddress?.address;
-
-    if (!fromAddress) {
-      console.warn("Email has no sender address, skipping.");
-      return;
-    }
-
+    const fromAddress = mail.from?.emailAddress?.address || "";
     const content = mail.body?.content || "";
     const incNumber = mail.subject || "";
 
-    if (!content || !incNumber) {
-      console.warn("Missing content or INC number, marking as read.");
-      await markEmailAsRead(emailId);
-      return;
+    let attachments: GraphAttachment[] = [];
+    if (mail.hasAttachments) {
+      const fetched = await fetchAttachments(emailId);
+      attachments = (fetched as GraphAttachment[]).filter(
+        (a) => a["@odata.type"] === "#microsoft.graph.fileAttachment"
+      );
     }
 
     const payload: AddNotePayload = {
@@ -32,38 +39,45 @@ export async function processNotification(notification: Notification) {
       content,
       inc_number: incNumber,
       origin: "mail",
+      graph_id: mail.id,
+      attachments: attachments.map((att) => ({
+        graph_id: att.id,
+        file_name: att.name,
+        content_type: att.contentType,
+        content_base_64: att.contentBytes,
+      })),
     };
 
-    let res;
-    try {
-      res = await addNote(payload);
-    } catch (err) {
-      console.error("Technical error adding note:", err);
-      res = {
-        success: false,
-        message: "Failed to process note due to technical error.",
-      };
-    }
-
-    try {
-      await sendEmail(fromAddress, res.message);
-    } catch (err) {
-      console.error("Error sending reply:", err);
-    }
+    const res = await addNoteWithAttachments(payload);
 
     const shouldMarkRead =
-      res.success ||
-      (res.errorCode !== undefined &&
-        ["INCIDENT_NOT_FOUND", "INCIDENT_NOT_IN_PROGRESS"].includes(
-          res.errorCode
-        ));
+      res.success === true ||
+      res.errorCode === "INCIDENT_NOT_FOUND" ||
+      res.errorCode === "INCIDENT_NOT_IN_PROGRESS";
+
     if (shouldMarkRead) {
       try {
         await markEmailAsRead(emailId);
       } catch (err) {
         console.error("Failed to mark email as read:", err);
       }
+    } else {
+      console.warn(
+        "Backend returned failure → email will not be marked as read."
+      );
     }
+
+    if (fromAddress) {
+      try {
+        await sendEmail(fromAddress, res.message || "Note processed.");
+      } catch (err) {
+        console.error("Error sending reply email:", err);
+      }
+    } else {
+      console.warn("No sender address found → cannot send reply");
+    }
+
+    console.log(res);
   } catch (err) {
     console.error("Error processing notification:", err);
   }

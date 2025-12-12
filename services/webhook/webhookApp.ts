@@ -31,8 +31,6 @@ export function createWebhookApp() {
         for (const notification of payload.value) {
           const mailId = notification.resourceData.id;
 
-          console.log(notification);
-
           const duplicate = await isDuplicate(mailId);
           if (duplicate) {
             console.log(`Duplicate mail ${mailId}, skipping.`);
