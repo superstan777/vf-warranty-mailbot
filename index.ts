@@ -7,7 +7,7 @@ import {
   scheduleRenewal,
 } from "./services/subsrciption/subscriptionManager";
 import { getMailboxResource } from "./services/subsrciption/subscriptionApi";
-import { startPollingUnreadEmails } from "./services/mail/unreadPolling";
+import { startPollingUnreadMails } from "./services/mail/unreadPolling";
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 
@@ -31,7 +31,7 @@ async function main() {
 
     console.log("Mailbot ready and monitoring mailbox.");
 
-    // startPollingUnreadEmails();
+    startPollingUnreadMails();
   } catch (err) {
     console.error("Failed to start mailbot:", err);
     process.exit(1);
